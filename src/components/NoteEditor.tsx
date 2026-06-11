@@ -1,0 +1,129 @@
+import React, { useEffect, useRef } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import { TextStyle } from '@tiptap/extension-text-style';
+import FontFamily from '@tiptap/extension-font-family';
+import { Box, ToggleButtonGroup, ToggleButton, Select, MenuItem, Divider } from '@mui/material';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
+import { Note } from '@/types';
+
+interface Props {
+  note: Note;
+  onUpdate: (id: string, content: string) => void;
+}
+
+const FONTS = ['Arial', 'Georgia', 'Courier New', 'Times New Roman', 'Verdana'];
+const HEADINGS = [
+  { label: 'Paragraph', value: 'paragraph' },
+  { label: 'Heading 1', value: 'h1' },
+  { label: 'Heading 2', value: 'h2' },
+];
+
+export default function NoteEditor({ note, onUpdate }: Props) {
+  const noteIdRef = useRef(note._id);
+  noteIdRef.current = note._id;
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({ heading: { levels: [1, 2] } }),
+      Underline,
+      TextStyle,
+      FontFamily,
+    ],
+    content: note.content || '<p></p>',
+    editorProps: {
+      attributes: { class: 'note-editor' },
+    },
+    onUpdate: ({ editor: ed }) => {
+      onUpdate(noteIdRef.current, ed.getHTML());
+    },
+  });
+
+  useEffect(() => {
+    if (editor && note.content !== editor.getHTML()) {
+      editor.commands.setContent(note.content || '<p></p>');
+    }
+  }, [note._id]);
+
+  if (!editor) return null;
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Box sx={{ p: 1, borderBottom: 1, borderColor: 'divider', display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', bgcolor: '#fafafa' }}>
+        <ToggleButtonGroup size="small">
+          <ToggleButton
+            value="bold"
+            selected={editor.isActive('bold')}
+            onChange={() => editor.chain().focus().toggleBold().run()}
+            sx={{ border: 1, borderColor: 'divider', p: 0.5, minWidth: 32 }}
+          >
+            <FormatBoldIcon fontSize="small" />
+          </ToggleButton>
+          <ToggleButton
+            value="italic"
+            selected={editor.isActive('italic')}
+            onChange={() => editor.chain().focus().toggleItalic().run()}
+            sx={{ border: 1, borderColor: 'divider', p: 0.5, minWidth: 32 }}
+          >
+            <FormatItalicIcon fontSize="small" />
+          </ToggleButton>
+          <ToggleButton
+            value="underline"
+            selected={editor.isActive('underline')}
+            onChange={() => editor.chain().focus().toggleUnderline().run()}
+            sx={{ border: 1, borderColor: 'divider', p: 0.5, minWidth: 32 }}
+          >
+            <FormatUnderlinedIcon fontSize="small" />
+          </ToggleButton>
+        </ToggleButtonGroup>
+
+        <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+        <Select
+          size="small"
+          value={
+            editor.isActive('heading', { level: 1 }) ? 'h1' :
+            editor.isActive('heading', { level: 2 }) ? 'h2' : 'paragraph'
+          }
+          onChange={(e) => {
+            const val = e.target.value;
+            editor.chain().focus().setParagraph().run();
+            if (val === 'h1') editor.chain().focus().toggleHeading({ level: 1 }).run();
+            if (val === 'h2') editor.chain().focus().toggleHeading({ level: 2 }).run();
+          }}
+          sx={{ minWidth: 110, height: 32, fontSize: '0.85rem' }}
+        >
+          {HEADINGS.map((h) => (
+            <MenuItem key={h.value} value={h.value}>{h.label}</MenuItem>
+          ))}
+        </Select>
+
+        <Select
+          size="small"
+          value={editor.getAttributes('textStyle').fontFamily || 'Arial'}
+          onChange={(e) => editor.chain().focus().setFontFamily(e.target.value).run()}
+          sx={{ minWidth: 120, height: 32, fontSize: '0.85rem' }}
+        >
+          {FONTS.map((f) => (
+            <MenuItem key={f} value={f} style={{ fontFamily: f }}>{f}</MenuItem>
+          ))}
+        </Select>
+      </Box>
+
+      <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
+        <EditorContent editor={editor} />
+      </Box>
+
+      <style jsx global>{`
+        .ProseMirror { outline: none; min-height: 200px; }
+        .ProseMirror p { margin: 0 0 0.5rem 0; }
+        .ProseMirror ul, .ProseMirror ol { padding-left: 1.5rem; }
+        .ProseMirror h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.5rem 0; }
+        .ProseMirror h2 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0; }
+      `}</style>
+    </Box>
+  );
+}

@@ -1,7 +1,17 @@
+import React from 'react';
+import { Box } from '@mui/material';
+import AppHeader from '@/components/AppHeader';
+import NotesSidebar from '@/components/NotesSidebar';
+import MainArea from '@/components/MainArea';
+
 export default function Home() {
   return (
-    <div>
-      <h1>Notes App</h1>
-    </div>
-  )
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <AppHeader />
+      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <NotesSidebar />
+        <MainArea />
+      </Box>
+    </Box>
+  );
 }
