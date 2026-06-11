@@ -124,9 +124,9 @@ export default function NoteEditor({ note, onUpdate }: Props) {
           onChange={(e) => {
             const val = e.target.value;
             editor.chain().focus().setParagraph().run();
-            if (val === 'h1') editor.chain().focus().toggleHeading({ level: 1 }).run();
-            if (val === 'h2') editor.chain().focus().toggleHeading({ level: 2 }).run();
-            if (val === 'h3') editor.chain().focus().toggleHeading({ level: 3 }).run();
+            if (val === 'h1') editor.chain().focus().unsetFontFamily().unsetFontSize().toggleHeading({ level: 1 }).run();
+            if (val === 'h2') editor.chain().focus().unsetFontFamily().unsetFontSize().toggleHeading({ level: 2 }).run();
+            if (val === 'h3') editor.chain().focus().unsetFontFamily().unsetFontSize().toggleHeading({ level: 3 }).run();
           }}
           sx={{ minWidth: 110, height: 32, fontSize: '0.85rem' }}
         >
