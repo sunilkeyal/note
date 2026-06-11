@@ -64,7 +64,7 @@ export default function NoteEditor({ note, onUpdate }: Props) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box sx={{ p: 1, borderBottom: 1, borderColor: 'divider', display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', bgcolor: 'background.paper' }}>
-        <ToggleButtonGroup size="small">
+        <ToggleButtonGroup size="small" exclusive={false}>
           <ToggleButton
             value="bold"
             selected={editor.isActive('bold')}
@@ -89,6 +89,11 @@ export default function NoteEditor({ note, onUpdate }: Props) {
           >
             <FormatUnderlinedIcon fontSize="small" />
           </ToggleButton>
+        </ToggleButtonGroup>
+
+        <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+        <ToggleButtonGroup size="small" exclusive={false}>
           <ToggleButton
             value="bulletList"
             selected={editor.isActive('bulletList')}
@@ -158,12 +163,13 @@ export default function NoteEditor({ note, onUpdate }: Props) {
       </Box>
 
       <style jsx global>{`
-        .ProseMirror { outline: none; min-height: 200px; }
-        .ProseMirror p { margin: 0 0 0.5rem 0; }
+        .ProseMirror { outline: none; min-height: 200px; line-height: 1.4; }
+        .ProseMirror p { margin: 0 0 0.25rem 0; }
         .ProseMirror ul, .ProseMirror ol { padding-left: 1.5rem; }
-        .ProseMirror h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.5rem 0; }
-        .ProseMirror h2 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0; }
-        .ProseMirror h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.5rem 0; }
+        .ProseMirror li { margin: 0 0 0.15rem 0; }
+        .ProseMirror h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem 0; }
+        .ProseMirror h2 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.25rem 0; }
+        .ProseMirror h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.25rem 0; }
       `}</style>
     </Box>
   );
