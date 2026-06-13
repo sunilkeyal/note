@@ -37,7 +37,7 @@ export default function MainArea() {
     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'background.default' }}>
       {activeNote ? (
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <Box sx={{ px: '40px', pt: 3, pb: 0, maxWidth: 960, width: '100%' }}>
+          <Box sx={{ px: '40px', pt: 3, pb: 0, maxWidth: 1140, width: '100%' }}>
             <TextField
               fullWidth
               variant="standard"
@@ -46,7 +46,7 @@ export default function MainArea() {
               slotProps={{
                 input: {
                   sx: {
-                    fontSize: '1.35rem',
+                    fontSize: '1.6rem',
                     fontWeight: 700,
                     '&:before': { borderBottom: 'none' },
                     '&:hover:not(.Mui-disabled, .Mui-error):before': { borderBottom: 'none' },
@@ -60,7 +60,7 @@ export default function MainArea() {
             </Typography>
             <Divider sx={{ mt: 1, mb: 0 }} />
           </Box>
-          <Box sx={{ flex: 1, overflow: 'auto', px: '40px', maxWidth: 960, width: '100%', py: 2 }}>
+          <Box sx={{ flex: 1, overflow: 'auto', px: '40px', maxWidth: 1140, width: '100%', py: 2 }}>
             <NoteEditor note={activeNote} onUpdate={handleUpdate} />
           </Box>
         </Box>
