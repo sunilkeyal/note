@@ -59,6 +59,7 @@ import { useSession, signOut } from "next-auth/react"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -392,17 +393,19 @@ export default function NotesSidebar() {
                   align="end"
                   sideOffset={4}
                 >
-                  <DropdownMenuLabel className="p-0 font-normal">
-                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                        {session?.user?.name?.charAt(0).toUpperCase() || "U"}
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="p-0 font-normal">
+                      <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                        <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                          {session?.user?.name?.charAt(0).toUpperCase() || "U"}
+                        </div>
+                        <div className="grid flex-1 text-left text-sm leading-tight">
+                          <span className="truncate font-semibold">{session?.user?.name || "User"}</span>
+                          <span className="truncate text-xs">{session?.user?.email || ""}</span>
+                        </div>
                       </div>
-                      <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-semibold">{session?.user?.name || "User"}</span>
-                        <span className="truncate text-xs">{session?.user?.email || ""}</span>
-                      </div>
-                    </div>
-                  </DropdownMenuLabel>
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem disabled>
                     <Settings /> Settings
