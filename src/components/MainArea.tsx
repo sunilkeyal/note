@@ -77,6 +77,14 @@ const HIGHLIGHT_COLORS = [
   "#ffee58", "#ffab40", "#f48fb1", "#ea80fc",
 ]
 
+const SPACING_PRESETS = [
+  { label: "Tight", value: "4px" },
+  { label: "Compact", value: "8px" },
+  { label: "Normal", value: "16px" },
+  { label: "Relaxed", value: "24px" },
+  { label: "Loose", value: "32px" },
+]
+
 export default function MainArea() {
   const { activeNote, activeNoteId, updateNote } = useNotes()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -359,6 +367,46 @@ export default function MainArea() {
                   >
                     Clear
                   </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            <Popover>
+              <PopoverTrigger
+                className="h-8 w-8 flex items-center justify-center rounded-md border border-input hover:bg-accent"
+                title="Paragraph spacing"
+              >
+                <ArrowUpDown className="h-4 w-4" />
+              </PopoverTrigger>
+              <PopoverContent className="w-[240px] p-3" align="start">
+                <div className="text-sm font-medium mb-3">Paragraph Spacing</div>
+                <Slider
+                  defaultValue={[16]}
+                  max={32}
+                  step={1}
+                  value={[(() => {
+                    const v = editor.getAttributes("textStyle").paragraphSpacing
+                    return v ? parseInt(v) : 16
+                  })()]}
+                  onValueChange={(val) => editor.chain().focus().setParagraphSpacing((Array.isArray(val) ? val[0] : val) + "px").run()}
+                  className="mb-2"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground px-0.5 mb-3">
+                  {SPACING_PRESETS.map((p) => (
+                    <button
+                      key={p.value}
+                      className="hover:text-foreground"
+                      onClick={() => editor.chain().focus().setParagraphSpacing(p.value).run()}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="text-center text-xs text-muted-foreground">
+                  {(() => {
+                    const v = editor.getAttributes("textStyle").paragraphSpacing
+                    return v ? `${v}` : "16px"
+                  })()}
                 </div>
               </PopoverContent>
             </Popover>
