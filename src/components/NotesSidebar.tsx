@@ -15,6 +15,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -54,6 +55,16 @@ import {
   ShoppingCart,
   HeartPulse,
 } from "lucide-react"
+import { useSession, signOut } from "next-auth/react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { LogOut, Settings, User as UserIcon, Rocket } from "lucide-react"
 
 const folderIcons: Record<string, typeof FolderIcon> = {
   work: Briefcase,
@@ -121,6 +132,8 @@ export default function NotesSidebar() {
 
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState("")
+
+  const { data: session } = useSession()
 
   const [dragActive, setDragActive] = useState(false)
   const [dropTarget, setDropTarget] = useState<{
@@ -360,6 +373,57 @@ export default function NotesSidebar() {
         <SidebarContent>
           {folders.map(renderFolder)}
         </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                      {session?.user?.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">{session?.user?.name || "User"}</span>
+                      <span className="truncate text-xs">{(session?.user as { role?: string })?.role || ""}</span>
+                    </div>
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="min-w-56 rounded-lg"
+                  side="top"
+                  align="end"
+                  sideOffset={4}
+                >
+                  <DropdownMenuLabel className="p-0 font-normal">
+                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                        {session?.user?.name?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">{session?.user?.name || "User"}</span>
+                        <span className="truncate text-xs">{session?.user?.email || ""}</span>
+                      </div>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem disabled>
+                    <Settings /> Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled>
+                    <UserIcon /> Account
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled>
+                    <Rocket /> Upgrade to Pro
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem variant="destructive" onClick={() => signOut()}>
+                    <LogOut /> Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
       </Sidebar>
 
       <DeleteConfirmDialog open={deleteNoteTarget !== null} onClose={() => setDeleteNoteTarget(null)} onConfirm={handleDeleteNote} />
