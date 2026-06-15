@@ -2,11 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add strikethrough, text color, highlight color, paragraph spacing slider, and font family dropdown to the TipTap editor toolbar.
+**Goal:** Add strikethrough, text color, highlight color, paragraph spacing segment control (5 presets), and font family dropdown to the TipTap editor toolbar.
 
-**Architecture:** All toolbar changes go in `MainArea.tsx` (toolbar + editor setup already there). Two new TipTap packages (`@tiptap/extension-color`, `@tiptap/extension-highlight`) and one custom extension (`ParagraphSpacing`). Font family extension is already installed but unused. Color and spacing use shadcn/ui Popover + Slider components.
+**Architecture:** All toolbar changes go in `MainArea.tsx` (toolbar + editor setup already there). Two new TipTap packages (`@tiptap/extension-color`, `@tiptap/extension-highlight`) and one custom extension (`ParagraphSpacing`). Font family extension is already installed but unused. Color and spacing use shadcn/ui Popover components.
 
-**Tech Stack:** TipTap v3, shadcn/ui (Popover, Slider), lucide-react (icons), React 19
+**Toolbar Layout:** Bold, Italic, Underline, Strike | Bullet List, Ordered List | Text Color, Highlight Color, Paragraph Spacing | Heading Selection, Font Family, Font Size
+
+**Tech Stack:** TipTap v3, shadcn/ui (Popover), lucide-react (icons), React 19
 
 ---
 
@@ -26,7 +28,7 @@ npm install @tiptap/extension-color @tiptap/extension-highlight
 
 Run:
 ```powershell
-npx shadcn@latest add popover slider
+npx shadcn@latest add popover
 ```
 
 - [ ] **Step 3: Verify everything compiled**
@@ -204,10 +206,12 @@ Run: `git add -A; if ($?) { git commit -m "feat: register color, highlight, font
 
 ---
 
-### Task 4: Add strikethrough and font family dropdown to toolbar
+### Task 4: Add strikethrough and reorganize toolbar layout
 
 **Files:**
 - Modify: `src/components/MainArea.tsx`
+
+**Toolbar Order:** Bold, Italic, Underline, Strike | Bullet List, Ordered List | Text Color, Highlight Color, Paragraph Spacing | Heading Selection, Font Family, Font Size
 
 - [ ] **Step 1: Add strikethrough toggle button**
 
@@ -223,18 +227,18 @@ In the existing ToggleGroup (after the underline button), add:
               </ToggleGroupItem>
 ```
 
-- [ ] **Step 2: Add font family dropdown after font size select**
+- [ ] **Step 2: Add font family dropdown after heading selection**
 
-After the font size `<Select>` block (after line 205), add:
+After the heading selection `<Select>` block, add:
 ```tsx
             <Select
-              value={editor.getAttributes("textStyle").fontFamily || ""}
+              value={editor.getAttributes("textStyle").fontFamily || "default"}
               onValueChange={(val) => {
                 if (val === "default") editor.chain().focus().unsetFontFamily().run()
                 else editor.chain().focus().setFontFamily(val).run()
               }}
             >
-              <SelectTrigger className="h-7 w-[130px] text-sm">
+              <SelectTrigger className="h-7 w-[130px] text-sm" style={{ fontFamily: editor.getAttributes("textStyle").fontFamily || "inherit" }}>
                 <SelectValue placeholder="Font" />
               </SelectTrigger>
               <SelectContent>
@@ -246,6 +250,10 @@ After the font size `<Select>` block (after line 205), add:
             </Select>
 ```
 
+**Key Details:**
+- `value` defaults to `"default"` instead of empty string so the dropdown correctly reflects "Default" when no font is set
+- `SelectTrigger` includes `style={{ fontFamily: editor.getAttributes("textStyle").fontFamily || "inherit" }}` to display the selected font in that font
+
 - [ ] **Step 3: Verify TypeScript compiles**
 
 Run: `npx tsc --noEmit --pretty 2>&1 | Select-String -Pattern "error"`
@@ -253,7 +261,7 @@ Expected: no errors
 
 - [ ] **Step 4: Commit**
 
-Run: `git add -A; if ($?) { git commit -m "feat: add strikethrough and font family dropdown" }`
+Run: `git add -A; if ($?) { git commit -m "feat: add font family dropdown with visual preview" }`
 
 ---
 
@@ -413,7 +421,7 @@ Run: `git add -A; if ($?) { git commit -m "feat: add highlight color picker popo
 
 ---
 
-### Task 7: Add paragraph spacing slider popover
+### Task 7: Add paragraph spacing segment control popover
 
 **Files:**
 - Modify: `src/components/MainArea.tsx`
@@ -436,47 +444,42 @@ const SPACING_PRESETS = [
 After the highlight Popover block, add:
 ```tsx
             <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className="h-8 w-8 flex items-center justify-center rounded-md border border-input hover:bg-accent"
-                  title="Paragraph spacing"
-                >
-                  <ArrowUpDown className="h-4 w-4" />
-                </button>
+              <PopoverTrigger
+                className="h-8 w-8 flex items-center justify-center rounded-md border border-input hover:bg-accent"
+                title="Paragraph spacing"
+              >
+                <ArrowUpDown className="h-4 w-4" />
               </PopoverTrigger>
-              <PopoverContent className="w-[240px] p-3" align="start">
+              <PopoverContent className="w-[260px] p-3" align="start">
                 <div className="text-sm font-medium mb-3">Paragraph Spacing</div>
-                <Slider
-                  defaultValue={[16]}
-                  max={32}
-                  step={1}
-                  value={[(() => {
-                    const v = editor.getAttributes("textStyle").paragraphSpacing
-                    return v ? parseInt(v) : 16
-                  })()]}
-                  onValueChange={([val]) => editor.chain().focus().setParagraphSpacing(val + "px").run()}
-                  className="mb-2"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground px-0.5 mb-3">
-                  {SPACING_PRESETS.map((p) => (
-                    <button
-                      key={p.value}
-                      className="hover:text-foreground"
-                      onClick={() => editor.chain().focus().setParagraphSpacing(p.value).run()}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="text-center text-xs text-muted-foreground">
-                  {(() => {
-                    const v = editor.getAttributes("textStyle").paragraphSpacing
-                    return v ? `${v}` : "16px"
-                  })()}
+                <div className="flex flex-col gap-2">
+                  {SPACING_PRESETS.map((p) => {
+                    const currentSpacing = editor.getAttributes("paragraph").paragraphSpacing
+                    const isActive = currentSpacing === p.value || (!currentSpacing && p.value === "16px")
+                    return (
+                      <button
+                        key={p.value}
+                        onClick={() => editor.chain().focus().setParagraphSpacing(p.value).run()}
+                        className={`px-3 py-2 text-sm rounded-md font-medium transition-all ${
+                          isActive
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-input bg-background hover:bg-accent"
+                        }`}
+                      >
+                        {p.label} <span className="text-xs opacity-75">({p.value})</span>
+                      </button>
+                    )
+                  })}
                 </div>
               </PopoverContent>
             </Popover>
 ```
+
+**Why segment control over slider?**
+- Eliminates performance issues from real-time slider updates
+- 5 preset buttons cover most common spacing needs
+- Better UX with clear visual feedback and active state highlighting
+- All buttons fit in a compact popover without scrolling
 
 - [ ] **Step 3: Verify TypeScript compiles**
 
@@ -485,7 +488,7 @@ Expected: no errors
 
 - [ ] **Step 4: Commit**
 
-Run: `git add -A; if ($?) { git commit -m "feat: add paragraph spacing slider popover" }`
+Run: `git add -A; if ($?) { git commit -m "feat: add paragraph spacing segment control with 5 presets" }`
 
 ---
 

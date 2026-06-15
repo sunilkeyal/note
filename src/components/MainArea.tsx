@@ -15,7 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Slider } from "@/components/ui/slider"
 import {
   Strikethrough,
   Palette,
@@ -222,69 +221,6 @@ export default function MainArea() {
 
             <Separator orientation="vertical" className="mx-1 h-6" />
 
-            <Select
-              value={
-                editor.isActive("heading", { level: 1 }) ? "h1" :
-                editor.isActive("heading", { level: 2 }) ? "h2" :
-                editor.isActive("heading", { level: 3 }) ? "h3" : "paragraph"
-              }
-              onValueChange={(val) => {
-                const chain = editor.chain().focus().setParagraph()
-                if (val === "h1") chain.unsetFontSize().toggleHeading({ level: 1 })
-                else if (val === "h2") chain.unsetFontSize().toggleHeading({ level: 2 })
-                else if (val === "h3") chain.unsetFontSize().toggleHeading({ level: 3 })
-                chain.run()
-              }}
-            >
-              <SelectTrigger className="h-7 w-[110px] text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {HEADINGS.map((h) => (
-                  <SelectItem key={h.value} value={h.value} className="text-sm">{h.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={(() => {
-                const explicit = editor.getAttributes("textStyle").fontSize?.replace("px", "")
-                if (explicit) return explicit
-                if (editor.isActive("heading", { level: 1 })) return "30"
-                if (editor.isActive("heading", { level: 2 })) return "24"
-                if (editor.isActive("heading", { level: 3 })) return "20"
-                return "16"
-              })()}
-              onValueChange={(val) => editor.chain().focus().setFontSize(val + "px").run()}
-            >
-              <SelectTrigger className="h-7 w-[70px] text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FONT_SIZES.map((s) => (
-                  <SelectItem key={s} value={s} className="text-sm">{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={editor.getAttributes("textStyle").fontFamily || ""}
-              onValueChange={(val) => {
-                if (val === "default") editor.chain().focus().unsetFontFamily().run()
-                else editor.chain().focus().setFontFamily(val).run()
-              }}
-            >
-              <SelectTrigger className="h-7 w-[130px] text-sm">
-                <SelectValue placeholder="Font" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default" className="text-sm">Default</SelectItem>
-                {FONTS.map((f) => (
-                  <SelectItem key={f} value={f} className="text-sm" style={{ fontFamily: f }}>{f}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
             <Popover>
               <PopoverTrigger
                 className="h-8 w-8 flex items-center justify-center rounded-md border border-input hover:bg-accent relative"
@@ -378,38 +314,94 @@ export default function MainArea() {
               >
                 <ArrowUpDown className="h-4 w-4" />
               </PopoverTrigger>
-              <PopoverContent className="w-[240px] p-3" align="start">
+              <PopoverContent className="w-[260px] p-3" align="start">
                 <div className="text-sm font-medium mb-3">Paragraph Spacing</div>
-                <Slider
-                  defaultValue={[16]}
-                  max={32}
-                  step={1}
-                  value={[(() => {
-                    const v = editor.getAttributes("paragraph").paragraphSpacing
-                    return v ? parseInt(v) : 16
-                  })()]}
-                  onValueChange={(val) => editor.chain().focus().setParagraphSpacing((Array.isArray(val) ? val[0] : val) + "px").run()}
-                  className="mb-2"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground px-0.5 mb-3">
-                  {SPACING_PRESETS.map((p) => (
-                    <button
-                      key={p.value}
-                      className="hover:text-foreground"
-                      onClick={() => editor.chain().focus().setParagraphSpacing(p.value).run()}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="text-center text-xs text-muted-foreground">
-                  {(() => {
-                    const v = editor.getAttributes("paragraph").paragraphSpacing
-                    return v ? `${v}` : "16px"
-                  })()}
+                <div className="flex flex-col gap-2">
+                  {SPACING_PRESETS.map((p) => {
+                    const currentSpacing = editor.getAttributes("paragraph").paragraphSpacing
+                    const isActive = currentSpacing === p.value || (!currentSpacing && p.value === "16px")
+                    return (
+                      <button
+                        key={p.value}
+                        onClick={() => editor.chain().focus().setParagraphSpacing(p.value).run()}
+                        className={`px-3 py-2 text-sm rounded-md font-medium transition-all ${
+                          isActive
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-input bg-background hover:bg-accent"
+                        }`}
+                      >
+                        {p.label} <span className="text-xs opacity-75">({p.value})</span>
+                      </button>
+                    )
+                  })}
                 </div>
               </PopoverContent>
             </Popover>
+
+            <Separator orientation="vertical" className="mx-1 h-6" />
+
+            <Select
+              value={
+                editor.isActive("heading", { level: 1 }) ? "h1" :
+                editor.isActive("heading", { level: 2 }) ? "h2" :
+                editor.isActive("heading", { level: 3 }) ? "h3" : "paragraph"
+              }
+              onValueChange={(val) => {
+                const chain = editor.chain().focus().setParagraph()
+                if (val === "h1") chain.unsetFontSize().toggleHeading({ level: 1 })
+                else if (val === "h2") chain.unsetFontSize().toggleHeading({ level: 2 })
+                else if (val === "h3") chain.unsetFontSize().toggleHeading({ level: 3 })
+                chain.run()
+              }}
+            >
+              <SelectTrigger className="h-7 w-[110px] text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {HEADINGS.map((h) => (
+                  <SelectItem key={h.value} value={h.value} className="text-sm">{h.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={editor.getAttributes("textStyle").fontFamily || "default"}
+              onValueChange={(val) => {
+                if (val === "default") editor.chain().focus().unsetFontFamily().run()
+                else editor.chain().focus().setFontFamily(val).run()
+              }}
+            >
+              <SelectTrigger className="h-7 w-[130px] text-sm" style={{ fontFamily: editor.getAttributes("textStyle").fontFamily || "inherit" }}>
+                <SelectValue placeholder="Font" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default" className="text-sm">Default</SelectItem>
+                {FONTS.map((f) => (
+                  <SelectItem key={f} value={f} className="text-sm" style={{ fontFamily: f }}>{f}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={(() => {
+                const explicit = editor.getAttributes("textStyle").fontSize?.replace("px", "")
+                if (explicit) return explicit
+                if (editor.isActive("heading", { level: 1 })) return "30"
+                if (editor.isActive("heading", { level: 2 })) return "24"
+                if (editor.isActive("heading", { level: 3 })) return "20"
+                return "16"
+              })()}
+              onValueChange={(val) => editor.chain().focus().setFontSize(val + "px").run()}
+            >
+              <SelectTrigger className="h-7 w-[70px] text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {FONT_SIZES.map((s) => (
+                  <SelectItem key={s} value={s} className="text-sm">{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
           </div>
         </div>
