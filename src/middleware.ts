@@ -15,6 +15,9 @@ const authConfig: NextAuthConfig = {
       if (pathname === "/login" || pathname.startsWith("/api/auth")) {
         return true
       }
+      if (pathname.startsWith("/admin")) {
+        return auth?.user?.role === "admin"
+      }
       return !!auth
     },
   },

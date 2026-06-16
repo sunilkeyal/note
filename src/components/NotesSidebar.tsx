@@ -26,6 +26,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import {
   Plus,
@@ -415,7 +416,8 @@ export default function NotesSidebar() {
 
           {session?.user?.role === "admin" && (
             <>
-              <div className="mt-4 px-3 py-1 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">
+              <SidebarSeparator className="my-2" />
+              <div className="px-3 py-1 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">
                 Admin
               </div>
               <SidebarGroup className="py-0">
