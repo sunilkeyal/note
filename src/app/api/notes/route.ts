@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/mongodb"
+import { auth } from "@/lib/auth"
 import { Note, NoteInput } from "@/types"
 
 export async function GET() {
+  const session = await auth()
+  if (!session) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+  }
+
   const db = await connectToDatabase()
   const collection = db.collection("notes")
 
@@ -26,6 +32,11 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth()
+  if (!session) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+  }
+
   const db = await connectToDatabase()
   const collection = db.collection("notes")
 
