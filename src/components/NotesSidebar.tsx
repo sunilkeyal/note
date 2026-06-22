@@ -4,7 +4,16 @@ import React, { useState, DragEvent } from "react"
 import { useNotes } from "@/contexts/NoteContext"
 import DeleteConfirmDialog from "./DeleteConfirmDialog"
 import DeleteFolderDialog from "./DeleteFolderDialog"
-import ExportNotePopover from "./ExportNotePopover"
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+} from "@/components/ui/context-menu"
 import { Folder, Note } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +31,7 @@ import {
   SidebarHeader,
   SidebarInput,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -32,6 +42,8 @@ import {
 import {
   Plus,
   Folder as FolderIcon,
+  ChevronRight,
+  ChevronDown,
   ChevronsUpDown,
   ChevronsDownUp,
   Trash2,
@@ -45,6 +57,7 @@ import {
   Image,
   Video,
   FileText,
+  File,
   Download,
   Code2,
   Utensils,
@@ -68,7 +81,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Settings, User as UserIcon, Rocket, LayoutDashboard, Database, Users, ScrollText, FileUp, BarChart3 } from "lucide-react"
+import { LogOut, Settings, User as UserIcon, Rocket, LayoutDashboard, Database, Users, ScrollText, BarChart3 } from "lucide-react"
 
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
@@ -127,7 +140,6 @@ function getFolderIcon(name: string) {
 
 const workspaceItems = [
   { route: "/workspace/trash",          label: "Trash",            icon: Trash2 },
-  { route: "/workspace/import-export",  label: "Import / Export",  icon: FileUp },
 ]
 
 const adminItems = [
@@ -197,6 +209,40 @@ export default function NotesSidebar() {
     }
   }
 
+  const handleCreateInFolder = async (folderId: string) => {
+    const folderNotes = notes
+      .filter((n) => n.folderId === folderId)
+      .sort((a, b) => a.position - b.position)
+    const position = folderNotes.length > 0
+      ? folderNotes[folderNotes.length - 1].position + 1000
+      : 0
+    const note = await createNote({ title: "Untitled Note", folderId, position })
+    if (note) {
+      if (!expandedFolders.has(folderId)) {
+        toggleFolder(folderId)
+      }
+      setActiveNoteId(note._id)
+    }
+  }
+
+  const handleExportNote = async (noteId: string, noteTitle: string, format: "markdown" | "pdf") => {
+    try {
+      const res = await fetch(`/api/notes/${noteId}/export?format=${format}`)
+      if (!res.ok) throw new Error("Export failed")
+      const blob = await res.blob()
+      const ext = format === "markdown" ? "md" : "pdf"
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      const safeName = noteTitle.replace(/[/\\?%*:|"<>]/g, "_")
+      a.download = `${safeName}.${ext}`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error("Export failed:", err)
+    }
+  }
+
   const handleCreateFolder = async () => {
     const folder = await createFolder("New Folder")
     if (folder) {
@@ -235,6 +281,10 @@ export default function NotesSidebar() {
   }
 
   const cancelRename = () => { setRenamingId(null); setRenameValue("") }
+
+  const handleRenameFromContextMenu = (id: string, name: string) => {
+    setTimeout(() => startRenaming(id, name), 0)
+  }
 
   const handleDragStart = (e: DragEvent, noteId: string) => {
     e.dataTransfer.setData("text/plain", noteId)
@@ -286,33 +336,43 @@ export default function NotesSidebar() {
           onClick={(e) => e.stopPropagation()}
         />
       ) : (
-        <div className="relative group/menu-sub-item">
-          <SidebarMenuSubButton
-            isActive={activeNoteId === note._id}
-            onClick={() => { setActiveNoteId(note._id); setActiveFolderId(null); if (pathname !== "/") router.push("/") }}
-            onDoubleClick={() => startRenaming(note._id, note.title)}
-            className="pr-8"
-            draggable
-            onDragStart={(e) => handleDragStart(e, note._id)}
-            onDragEnd={handleDragEnd}
-            onDragOver={(e) => handleNoteDragOver(e, noteIndex, parentFolderId)}
-          >
-            <span className="truncate">{note.title}</span>
-          </SidebarMenuSubButton>
-          <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 transition-opacity pointer-events-none opacity-0 group-hover/menu-sub-item:pointer-events-auto group-hover/menu-sub-item:opacity-100">
-            <ExportNotePopover note={note}>
-              <Button variant="ghost" size="icon-xs" onClick={(e) => e.stopPropagation()}>
-                <Download />
-              </Button>
-            </ExportNotePopover>
-            <Button variant="ghost" size="icon-xs" onClick={(e) => { e.stopPropagation(); startRenaming(note._id, note.title) }}>
-              <Pencil />
-            </Button>
-            <Button variant="ghost" size="icon-xs" onClick={(e) => { e.stopPropagation(); setDeleteNoteTarget(note._id) }}>
-              <Trash2 />
-            </Button>
-          </div>
-        </div>
+        <ContextMenu>
+          <ContextMenuTrigger render={
+            <SidebarMenuSubButton
+              isActive={activeNoteId === note._id}
+              onClick={() => { setActiveNoteId(note._id); setActiveFolderId(null); if (pathname !== "/") router.push("/") }}
+              onDoubleClick={() => startRenaming(note._id, note.title)}
+              draggable
+              onDragStart={(e) => handleDragStart(e, note._id)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => handleNoteDragOver(e, noteIndex, parentFolderId)}
+            >
+              <span className="truncate">{note.title}</span>
+            </SidebarMenuSubButton>
+          } />
+          <ContextMenuContent>
+            <ContextMenuItem onClick={(e) => { e.stopPropagation(); handleRenameFromContextMenu(note._id, note.title) }}>
+              <Pencil /> Rename
+            </ContextMenuItem>
+            <ContextMenuSub>
+              <ContextMenuSubTrigger>
+                <Download /> Download
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent>
+                <ContextMenuItem onClick={(e) => { e.stopPropagation(); handleExportNote(note._id, note.title, "markdown") }}>
+                  <FileText /> Markdown
+                </ContextMenuItem>
+                <ContextMenuItem onClick={(e) => { e.stopPropagation(); handleExportNote(note._id, note.title, "pdf") }}>
+                  <File /> PDF
+                </ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+            <ContextMenuSeparator />
+            <ContextMenuItem onClick={(e) => { e.stopPropagation(); setDeleteNoteTarget(note._id) }}>
+              <Trash2 /> Move to trash
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
       )}
     </SidebarMenuSubItem>
   )
@@ -332,30 +392,43 @@ export default function NotesSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <CollapsibleTrigger render={<SidebarMenuButton isActive={activeFolderId === folder._id} />}>
-                  <FolderIconForFolder />
-                  {renamingId === folder._id ? (
-                    <Input
-                      value={renameValue}
-                      onChange={(e) => setRenameValue(e.target.value)}
-                      onBlur={() => finishRename(folder._id)}
-                      onKeyDown={(e) => { if (e.key === "Enter") finishRename(folder._id); if (e.key === "Escape") cancelRename() }}
-                      autoFocus
-                      className="h-6 text-xs px-1"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  ) : (
-                    <span className="flex-1 truncate text-left">{folder.name}</span>
-                  )}
-                </CollapsibleTrigger>
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 transition-opacity pointer-events-none opacity-0 group-hover/menu-item:pointer-events-auto group-hover/menu-item:opacity-100 z-10">
-                  <Button variant="ghost" size="icon-xs" onClick={(e) => { e.stopPropagation(); startRenaming(folder._id, folder.name) }}>
-                    <Pencil />
-                  </Button>
-                  <Button variant="ghost" size="icon-xs" onClick={(e) => { e.stopPropagation(); setDeleteFolderTarget(folder) }}>
-                    <Trash2 />
-                  </Button>
-                </div>
+                <ContextMenu>
+                  <ContextMenuTrigger render={
+                    <CollapsibleTrigger render={<SidebarMenuButton isActive={activeFolderId === folder._id} />}>
+                      <FolderIconForFolder />
+                      {renamingId === folder._id ? (
+                        <Input
+                          value={renameValue}
+                          onChange={(e) => setRenameValue(e.target.value)}
+                          onBlur={() => finishRename(folder._id)}
+                          onKeyDown={(e) => { if (e.key === "Enter") finishRename(folder._id); if (e.key === "Escape") cancelRename() }}
+                          autoFocus
+                          className="h-6 text-xs px-1"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <span className="flex-1 truncate text-left">{folder.name}</span>
+                      )}
+                    </CollapsibleTrigger>
+                  } />
+                  <ContextMenuContent>
+                    <ContextMenuItem onClick={(e) => { e.stopPropagation(); handleRenameFromContextMenu(folder._id, folder.name) }}>
+                      <Pencil /> Rename
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={(e) => { e.stopPropagation(); handleCreateInFolder(folder._id) }}>
+                      <Plus /> Create new note
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={(e) => { e.stopPropagation(); setDeleteFolderTarget(folder) }}>
+                      <Trash2 /> Move to trash
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+                {!renamingId && (
+                  <SidebarMenuAction showOnHover={false} onClick={() => { toggleFolder(folder._id); setActiveFolderId(folder._id) }}>
+                    {isExpanded ? <ChevronDown /> : <ChevronRight />}
+                  </SidebarMenuAction>
+                )}
               </SidebarMenuItem>
               <CollapsibleContent>
                 <SidebarMenuSub>
