@@ -234,7 +234,8 @@ export default function NotesSidebar() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = `${noteTitle}.${ext}`
+      const safeName = noteTitle.replace(/[/\\?%*:|"<>]/g, "_")
+      a.download = `${safeName}.${ext}`
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
@@ -337,7 +338,6 @@ export default function NotesSidebar() {
               isActive={activeNoteId === note._id}
               onClick={() => { setActiveNoteId(note._id); setActiveFolderId(null); if (pathname !== "/") router.push("/") }}
               onDoubleClick={() => startRenaming(note._id, note.title)}
-              className="pr-8"
               draggable
               onDragStart={(e) => handleDragStart(e, note._id)}
               onDragEnd={handleDragEnd}
