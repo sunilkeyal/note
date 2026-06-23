@@ -22,10 +22,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        const { email, password } = credentials as {
+        const { email: rawEmail, password } = credentials as {
           email: string
           password: string
         }
+        const email = rawEmail.toLowerCase().trim()
 
         const db = await connectToDatabase()
 
