@@ -86,7 +86,13 @@ export async function DELETE(request: NextRequest) {
   let deletedFolders = 0
 
   if (noteIds && noteIds.length > 0) {
-    const noteObjectIds = noteIds.map((id) => new ObjectId(id))
+    const noteObjectIds: ObjectId[] = []
+    for (const id of noteIds) {
+      try { noteObjectIds.push(new ObjectId(id)) } catch { continue }
+    }
+    if (noteObjectIds.length === 0) {
+      return NextResponse.json({ success: false, error: "Invalid note ID format" }, { status: 400 })
+    }
     const result = await notesCollection.deleteMany({
       _id: { $in: noteObjectIds },
       userId: session.user.id,
@@ -95,7 +101,13 @@ export async function DELETE(request: NextRequest) {
   }
 
   if (folderIds && folderIds.length > 0) {
-    const folderObjectIds = folderIds.map((id) => new ObjectId(id))
+    const folderObjectIds: ObjectId[] = []
+    for (const id of folderIds) {
+      try { folderObjectIds.push(new ObjectId(id)) } catch { continue }
+    }
+    if (folderObjectIds.length === 0) {
+      return NextResponse.json({ success: false, error: "Invalid folder ID format" }, { status: 400 })
+    }
     const result = await foldersCollection.deleteMany({
       _id: { $in: folderObjectIds },
       userId: session.user.id,

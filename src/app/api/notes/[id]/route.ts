@@ -27,6 +27,14 @@ export async function PUT(
   const body: NoteUpdate = await request.json()
   const { title, content, folderId, position } = body
 
+  if (title !== undefined && title.length > 200) {
+    return NextResponse.json({ success: false, error: "Title is too long (max 200 characters)" }, { status: 400 })
+  }
+
+  if (content !== undefined && content.length > 1_000_000) {
+    return NextResponse.json({ success: false, error: "Content is too large (max 1MB)" }, { status: 400 })
+  }
+
   const update: Record<string, unknown> = { updatedAt: new Date() }
   if (title !== undefined) update.title = title.trim()
   if (content !== undefined) update.content = content

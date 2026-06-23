@@ -24,7 +24,13 @@ export async function POST(request: NextRequest) {
   let restoredFolders = 0
 
   if (noteIds && noteIds.length > 0) {
-    const noteObjectIds = noteIds.map((id) => new ObjectId(id))
+    const noteObjectIds: ObjectId[] = []
+    for (const id of noteIds) {
+      try { noteObjectIds.push(new ObjectId(id)) } catch { continue }
+    }
+    if (noteObjectIds.length === 0) {
+      return NextResponse.json({ success: false, error: "Invalid note ID format" }, { status: 400 })
+    }
     const result = await notesCollection.updateMany(
       { _id: { $in: noteObjectIds }, userId: session.user.id },
       { $unset: { isDeleted: "", deletedAt: "" } }
@@ -33,7 +39,13 @@ export async function POST(request: NextRequest) {
   }
 
   if (folderIds && folderIds.length > 0) {
-    const folderObjectIds = folderIds.map((id) => new ObjectId(id))
+    const folderObjectIds: ObjectId[] = []
+    for (const id of folderIds) {
+      try { folderObjectIds.push(new ObjectId(id)) } catch { continue }
+    }
+    if (folderObjectIds.length === 0) {
+      return NextResponse.json({ success: false, error: "Invalid folder ID format" }, { status: 400 })
+    }
     const result = await foldersCollection.updateMany(
       { _id: { $in: folderObjectIds }, userId: session.user.id },
       { $unset: { isDeleted: "", deletedAt: "" } }

@@ -48,6 +48,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Title is required" }, { status: 400 })
   }
 
+  if (title.length > 200) {
+    return NextResponse.json({ success: false, error: "Title is too long (max 200 characters)" }, { status: 400 })
+  }
+
   const now = new Date()
   const doc: Record<string, unknown> = {
     title: title.trim(),

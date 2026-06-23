@@ -19,6 +19,9 @@ export async function GET(request: NextRequest) {
   const notesQuery: Record<string, unknown> = { isDeleted: true }
   const foldersQuery: Record<string, unknown> = { isDeleted: true }
   if (userIdFilter) {
+    if (typeof userIdFilter !== "string" || userIdFilter.length < 1) {
+      return NextResponse.json({ success: false, error: "Invalid userId filter" }, { status: 400 })
+    }
     notesQuery.userId = userIdFilter
     foldersQuery.userId = userIdFilter
   }
