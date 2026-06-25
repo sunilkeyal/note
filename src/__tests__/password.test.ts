@@ -8,8 +8,19 @@ describe("generatePassword", () => {
   })
 
   it("contains at least one special character", () => {
-    const pws = Array.from({ length: 10 }, () => generatePassword(12))
-    expect(pws).toEqual(expect.arrayContaining([expect.stringMatching(/[!@#$%^&*]/)]))
+    for (let i = 0; i < 10; i++) {
+      const pw = generatePassword(12)
+      expect(pw).toMatch(/[!@#$%^&*]/)
+    }
+  })
+
+  it("uses default length of 12 when no argument given", () => {
+    expect(generatePassword()).toHaveLength(12)
+  })
+
+  it("only contains characters from the defined charset", () => {
+    const pw = generatePassword(100)
+    expect(pw).toMatch(/^[A-Za-z0-9!@#$%^&*]+$/)
   })
 
   it("generates different values each call", () => {
