@@ -117,6 +117,69 @@ describe('auth', () => {
       expect(result).toBeNull()
     })
 
+    it('returns null if user is disabled (isActive === false)', async () => {
+      mockConnectToDatabase.mockResolvedValue({
+        collection: vi.fn().mockReturnThis(),
+        findOne: vi.fn().mockResolvedValue({
+          _id: { toString: () => 'u1' },
+          displayName: 'Disabled User',
+          email: 'disabled@test.com',
+          role: 'user',
+          passwordHash: 'hash123',
+          isActive: false,
+        }),
+      })
+      mockBcryptCompare.mockResolvedValue(true)
+
+      const result = await authorize({ email: 'disabled@test.com', password: 'correct' })
+      expect(result).toBeNull()
+    })
+
+    it('allows login when isActive is true', async () => {
+      mockConnectToDatabase.mockResolvedValue({
+        collection: vi.fn().mockReturnThis(),
+        findOne: vi.fn().mockResolvedValue({
+          _id: { toString: () => 'u1' },
+          displayName: 'Active User',
+          email: 'active@test.com',
+          role: 'user',
+          passwordHash: 'hash123',
+          isActive: true,
+        }),
+      })
+      mockBcryptCompare.mockResolvedValue(true)
+
+      const result = await authorize({ email: 'active@test.com', password: 'correct' })
+      expect(result).toEqual({
+        id: 'u1',
+        name: 'Active User',
+        email: 'active@test.com',
+        role: 'user',
+      })
+    })
+
+    it('allows login when isActive field is missing (backward compat)', async () => {
+      mockConnectToDatabase.mockResolvedValue({
+        collection: vi.fn().mockReturnThis(),
+        findOne: vi.fn().mockResolvedValue({
+          _id: { toString: () => 'u1' },
+          displayName: 'Old User',
+          email: 'old@test.com',
+          role: 'user',
+          passwordHash: 'hash123',
+        }),
+      })
+      mockBcryptCompare.mockResolvedValue(true)
+
+      const result = await authorize({ email: 'old@test.com', password: 'correct' })
+      expect(result).toEqual({
+        id: 'u1',
+        name: 'Old User',
+        email: 'old@test.com',
+        role: 'user',
+      })
+    })
+
     it('returns user object with id, name, email, role on success', async () => {
       mockConnectToDatabase.mockResolvedValue({
         collection: vi.fn().mockReturnThis(),
