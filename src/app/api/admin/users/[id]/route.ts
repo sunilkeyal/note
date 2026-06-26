@@ -90,7 +90,10 @@ export async function PUT(
     }
     if (body.role !== user.role) {
       if (user.role === "admin" && body.role !== "admin") {
-        const adminCount = await db.collection("users").countDocuments({ role: "admin" })
+        const adminCount = await db.collection("users").countDocuments({
+          role: "admin",
+          $or: [{ isActive: { $exists: false } }, { isActive: true }],
+        })
         if (adminCount <= 1) {
           return NextResponse.json({ success: false, error: "Cannot change role of the last admin" }, { status: 400 })
         }
@@ -161,7 +164,10 @@ export async function DELETE(
   }
 
   if (user.role === "admin") {
-    const adminCount = await db.collection("users").countDocuments({ role: "admin" })
+    const adminCount = await db.collection("users").countDocuments({
+      role: "admin",
+      $or: [{ isActive: { $exists: false } }, { isActive: true }],
+    })
     if (adminCount <= 1) {
       return NextResponse.json({ success: false, error: "Cannot delete the last admin account" }, { status: 400 })
     }
