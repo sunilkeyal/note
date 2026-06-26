@@ -29,6 +29,7 @@ interface Props {
 }
 
 export default function EditUserDialog({ open, user, onClose, onUpdated }: Props) {
+  const [email, setEmail] = useState("")
   const [displayName, setDisplayName] = useState("")
   const [role, setRole] = useState("user")
   const [loading, setLoading] = useState(false)
@@ -36,6 +37,7 @@ export default function EditUserDialog({ open, user, onClose, onUpdated }: Props
 
   useEffect(() => {
     if (user) {
+      setEmail(user.email)
       setDisplayName(user.displayName)
       setRole(user.role)
       setError("")
@@ -52,7 +54,7 @@ export default function EditUserDialog({ open, user, onClose, onUpdated }: Props
       const res = await fetch(`/api/admin/users/${user._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ displayName, role }),
+        body: JSON.stringify({ email, displayName, role }),
       })
       const data = await res.json()
 
@@ -80,8 +82,14 @@ export default function EditUserDialog({ open, user, onClose, onUpdated }: Props
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label>Email</Label>
-              <Input value={user?.email || ""} disabled />
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="edit-name">Display Name</Label>

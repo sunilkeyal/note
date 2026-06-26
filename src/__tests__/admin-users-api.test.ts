@@ -385,6 +385,47 @@ describe("GET /api/admin/users/[id]", () => {
 })
 
 describe("PUT /api/admin/users/[id]", () => {
+  it("updates user email", async () => {
+    const { auth } = await import("@/lib/auth")
+    vi.mocked(auth).mockResolvedValue({ user: { id: "admin1", role: "admin" } } as any)
+
+    const mockUpdateOne = vi.fn().mockResolvedValue({ modifiedCount: 1 })
+
+    mockCollection.mockReturnValue({
+      findOne: vi.fn()
+        .mockResolvedValueOnce({
+          _id: { toString: () => "000000000000000000000001" },
+          email: "old@test.com",
+          displayName: "User",
+          role: "user",
+        })
+        .mockResolvedValueOnce(null) // no duplicate email
+        .mockResolvedValueOnce({
+          _id: { toString: () => "000000000000000000000001" },
+          email: "new@test.com",
+          displayName: "User",
+          role: "user",
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      updateOne: mockUpdateOne,
+    })
+
+    const { PUT } = await import("@/app/api/admin/users/[id]/route")
+    const req = new Request("http://localhost/api/admin/users/000000000000000000000001", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "new@test.com" }),
+    })
+    const res = await PUT(req, { params: { id: "000000000000000000000001" } })
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.data.email).toBe("new@test.com")
+    // Verify only updateOne was called (no insertOne)
+    expect(mockUpdateOne).toHaveBeenCalled()
+  })
+
   it("updates user fields", async () => {
     const { auth } = await import("@/lib/auth")
     vi.mocked(auth).mockResolvedValue({ user: { id: "admin1", role: "admin" } } as any)

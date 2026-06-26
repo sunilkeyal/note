@@ -89,6 +89,21 @@ export async function PUT(
     update.displayName = body.displayName.trim()
   }
 
+  if (body.email !== undefined) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const normalizedEmail = body.email.toLowerCase().trim()
+    if (!emailRegex.test(normalizedEmail)) {
+      return NextResponse.json({ success: false, error: "Invalid email format" }, { status: 400 })
+    }
+    if (normalizedEmail !== user.email) {
+      const existing = await db.collection("users").findOne({ email: normalizedEmail })
+      if (existing) {
+        return NextResponse.json({ success: false, error: "Email already exists" }, { status: 409 })
+      }
+    }
+    update.email = normalizedEmail
+  }
+
   if (body.role !== undefined) {
     if (!["admin", "user"].includes(body.role)) {
       return NextResponse.json({ success: false, error: "Invalid role" }, { status: 400 })
