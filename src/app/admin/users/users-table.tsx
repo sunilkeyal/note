@@ -154,16 +154,12 @@ export default function UsersTable({
                           </TooltipTrigger>
                           <TooltipContent>Edit user</TooltipContent>
                         </Tooltip>
-                        {isCurrentUser ? (
-                          <div className="h-8 w-8" />
-                        ) : (
-                          <Tooltip>
-                            <TooltipTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 hover:text-red-600 hover:bg-red-50" onClick={() => onDelete(u)} />}>
-                              <Trash2 className="h-4 w-4" />
-                            </TooltipTrigger>
-                            <TooltipContent>Delete user</TooltipContent>
-                          </Tooltip>
-                        )}
+                        <Tooltip>
+                          <TooltipTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 hover:text-red-600 hover:bg-red-50" disabled={isCurrentUser} onClick={() => onDelete(u)} />}>
+                            <Trash2 className="h-4 w-4" />
+                          </TooltipTrigger>
+                          <TooltipContent>{isCurrentUser ? "Cannot delete yourself" : "Delete user"}</TooltipContent>
+                        </Tooltip>
                       </div>
                     </TooltipProvider>
                   </td>
