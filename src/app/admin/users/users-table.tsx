@@ -13,6 +13,13 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Pencil, Trash2 } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export interface UserRow {
   _id: string
@@ -40,7 +47,6 @@ interface Props {
   onLimitChange: (limit: number) => void
   onToggleActive: (user: UserRow) => void
   onEdit: (user: UserRow) => void
-  onResetPassword: (user: UserRow) => void
   onDelete: (user: UserRow) => void
 }
 
@@ -49,7 +55,7 @@ export default function UsersTable({
   search, roleFilter, statusFilter,
   onSearchChange, onRoleFilterChange, onStatusFilterChange,
   onPageChange, onLimitChange,
-  onToggleActive, onEdit, onResetPassword, onDelete,
+  onToggleActive, onEdit, onDelete,
 }: Props) {
   const totalPages = Math.max(1, Math.ceil(total / limit))
 
@@ -141,17 +147,22 @@ export default function UsersTable({
                   </td>
                   <td className="p-3 text-right">
                     {!isCurrentUser && (
-                    <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => onEdit(u)}>
-                        Edit
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => onResetPassword(u)}>
-                        Reset PW
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600" onClick={() => onDelete(u)}>
-                        Delete
-                      </Button>
-                    </div>
+                      <TooltipProvider>
+                        <div className="flex justify-end gap-1">
+                          <Tooltip>
+                            <TooltipTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 hover:text-blue-600 hover:bg-blue-50" onClick={() => onEdit(u)} />}>
+                              <Pencil className="h-4 w-4" />
+                            </TooltipTrigger>
+                            <TooltipContent>Edit user</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 hover:text-red-600 hover:bg-red-50" onClick={() => onDelete(u)} />}>
+                              <Trash2 className="h-4 w-4" />
+                            </TooltipTrigger>
+                            <TooltipContent>Delete user</TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TooltipProvider>
                     )}
                   </td>
                 </tr>

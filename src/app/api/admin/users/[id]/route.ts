@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { ObjectId } from "mongodb"
+import bcrypt from "bcryptjs"
 import { auth } from "@/lib/auth"
 import { connectToDatabase } from "@/lib/mongodb"
+import { sendPasswordResetByAdminEmail } from "@/lib/email"
 
 async function getAdminSession() {
   const session = await auth()
@@ -138,6 +140,10 @@ export async function PUT(
     update.isActive = body.isActive
   }
 
+  if (body.password !== undefined && typeof body.password === "string" && body.password.trim().length > 0) {
+    update.passwordHash = await bcrypt.hash(body.password.trim(), 12)
+  }
+
   update.updatedAt = new Date()
 
   const result = await db.collection("users").updateOne(
@@ -147,6 +153,13 @@ export async function PUT(
 
   if (result.matchedCount === 0) {
     return NextResponse.json({ success: false, error: "User not found" }, { status: 404 })
+  }
+
+  if (update.passwordHash) {
+    const emailRecipient = update.email ?? user.email
+    sendPasswordResetByAdminEmail(emailRecipient, body.password.trim()).catch((err) =>
+      console.error("[Admin] Failed to send password change email:", err)
+    )
   }
 
   const updated = await db.collection("users").findOne({ _id: objectId })
