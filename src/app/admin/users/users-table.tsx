@@ -133,15 +133,17 @@ export default function UsersTable({
                   <td className="p-3">
                     <div className="flex items-center gap-2">
                       {isCurrentUser ? (
-                        <Tooltip>
-                          <TooltipTrigger render={<span className="flex items-center gap-2 cursor-not-allowed" />}>
-                            <Switch checked={u.isActive} disabled />
-                            <span className={u.isActive ? "text-green-600/50" : "text-red-600/50"}>
-                              {u.isActive ? "Active" : "Disabled"}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>Cannot disable your own account</TooltipContent>
-                        </Tooltip>
+                        <TooltipProvider delay={0}>
+                          <Tooltip>
+                            <TooltipTrigger render={<span className="flex items-center gap-2 cursor-not-allowed" />}>
+                              <Switch checked={u.isActive} disabled />
+                              <span className={u.isActive ? "text-green-600/50" : "text-red-600/50"}>
+                                {u.isActive ? "Active" : "Disabled"}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>Cannot disable your own account</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ) : (
                         <div className="flex items-center gap-2">
                           <Switch checked={u.isActive} onCheckedChange={() => onToggleActive(u)} />
