@@ -21,6 +21,7 @@ interface NoteContextValue {
   renameFolder: (id: string, name: string) => Promise<Folder | null>;
   deleteFolder: (id: string) => Promise<{ deletedFolder: string; softDeletedNotesCount: number } | null>;
   moveNote: (noteId: string, folderId: string | null, position?: number) => Promise<Note | null>;
+  moveFolder: (folderId: string, position: number) => Promise<Folder | null>;
   toggleFolder: (folderId: string) => void;
   trashItems: { notes: Note[]; folders: Folder[] };
   trashLoading: boolean;
@@ -36,6 +37,13 @@ function sortByPosition(notes: Note[]): Note[] {
   return [...notes].sort((a, b) => {
     if (a.position !== b.position) return a.position - b.position;
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
+}
+
+function sortFoldersByPosition(folders: Folder[]): Folder[] {
+  return [...folders].sort((a, b) => {
+    if (a.position !== b.position) return a.position - b.position;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 }
 
@@ -105,7 +113,7 @@ export function NoteProvider({ children }: { children: ReactNode }) {
       const res = await fetch('/api/folders');
       const json: ApiResponse<Folder[]> = await res.json();
       if (json.success && json.data) {
-        setFolders(json.data);
+        setFolders(sortFoldersByPosition(json.data));
       }
     } catch {
       // silent — folders are optional UX
@@ -292,6 +300,24 @@ export function NoteProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const moveFolder = useCallback(async (folderId: string, position: number): Promise<Folder | null> => {
+    try {
+      const res = await fetch(`/api/folders/${folderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position }),
+      });
+      const json: ApiResponse<Folder> = await res.json();
+      if (json.success && json.data) {
+        setFolders((prev) => sortFoldersByPosition(prev.map((f) => (f._id === folderId ? json.data! : f))));
+        return json.data;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotes();
@@ -316,6 +342,7 @@ export function NoteProvider({ children }: { children: ReactNode }) {
     renameFolder,
     deleteFolder,
     moveNote,
+    moveFolder,
     toggleFolder,
     trashItems,
     trashLoading,
@@ -326,7 +353,7 @@ export function NoteProvider({ children }: { children: ReactNode }) {
   }), [
     notes, folders, expandedFolders, loading, error, activeNoteId, activeNote,
     setActiveNoteId, fetchNotes, fetchFolders, createNote, updateNote, deleteNote,
-    createFolder, renameFolder, deleteFolder, moveNote, toggleFolder,
+    createFolder, renameFolder, deleteFolder, moveNote, moveFolder, toggleFolder,
     trashItems, trashLoading, trashError,
     fetchTrash, restoreItems, permanentDeleteItems,
   ]);
