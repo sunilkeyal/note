@@ -159,6 +159,44 @@ function getFolderIcon(name: string) {
   return FolderIcon
 }
 
+const SortableNoteItem = ({ noteId, dragType, children }: { noteId: string; dragType: string | null; children: React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } = useSortable({ id: noteId })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    position: "relative" as const,
+  }
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}
+      className={isOver && dragType === "note" ? "border-t-2 border-blue-500" : ""}
+    >
+      {children}
+    </div>
+  )
+}
+
+const SortableFolderItem = ({ folderId, dragType, children }: { folderId: string; dragType: string | null; children: React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } = useSortable({ id: folderId })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  }
+  const indicatorClass = isOver
+    ? dragType === "folder"
+      ? "border-t-2 border-blue-500"
+      : "ring-2 ring-blue-500 rounded-md"
+    : ""
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}
+      className={indicatorClass}
+    >
+      {children}
+    </div>
+  )
+}
+
 const workspaceItems = [
   { route: "/workspace/trash",          label: "Trash",            icon: Trash2 },
 ]
@@ -227,7 +265,7 @@ export default function NotesSidebar() {
   }
 
   const handleCreateRootNote = async () => {
-    const rootNotes = filtered.filter((n) => !n.folderId).sort((a, b) => a.position - b.position)
+    const rootNotes = notes.filter((n) => !n.folderId).sort((a, b) => a.position - b.position)
     const position = rootNotes.length > 0 ? rootNotes[rootNotes.length - 1].position + 1000 : 0
     const note = await createNote({ title: "Untitled Note", position })
     if (note) {
@@ -356,7 +394,7 @@ export default function NotesSidebar() {
         pos = next ? (target.position + next.position) / 2 : target.position + 1000
       } else {
         const prev = sorted[newIdx - 1]
-        pos = prev ? (prev.position + target.position) / 2 : target.position / 2
+        pos = prev ? (prev.position + target.position) / 2 : target.position > 0 ? target.position / 2 : target.position - 1000
       }
       await moveFolder(activeId, pos)
       return
@@ -397,44 +435,6 @@ export default function NotesSidebar() {
   }
 
 
-
-  const SortableNoteItem = ({ note, noteIndex, parentFolderId, dragType }: { note: Note; noteIndex: number; parentFolderId: string | null; dragType: string | null }) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } = useSortable({ id: note._id })
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.4 : 1,
-      position: "relative" as const,
-    }
-    return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}
-        className={isOver && dragType === "note" ? "border-t-2 border-blue-500" : ""}
-      >
-        {renderNoteItem(note, noteIndex, parentFolderId)}
-      </div>
-    )
-  }
-
-  const SortableFolderItem = ({ folder, children, dragType }: { folder: Folder; children: React.ReactNode; dragType: string | null }) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } = useSortable({ id: folder._id })
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.4 : 1,
-    }
-    const indicatorClass = isOver
-      ? dragType === "folder"
-        ? "border-t-2 border-blue-500"
-        : "ring-2 ring-blue-500 rounded-md"
-      : ""
-    return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}
-        className={indicatorClass}
-      >
-        {children}
-      </div>
-    )
-  }
 
   const renderNoteItem = (note: Note, noteIndex: number, parentFolderId: string | null) => (
     <SidebarMenuSubItem key={note._id}>
@@ -492,7 +492,7 @@ export default function NotesSidebar() {
     const FolderIconForFolder = getFolderIcon(folder.name)
 
     return (
-      <SortableFolderItem key={folder._id} folder={folder} dragType={activeDragType}>
+      <SortableFolderItem key={folder._id} folderId={folder._id} dragType={activeDragType}>
         <Collapsible
           open={isExpanded}
           onOpenChange={() => { toggleFolder(folder._id); setActiveFolderId(folder._id) }}
@@ -548,7 +548,9 @@ export default function NotesSidebar() {
                     )}
                     <SortableContext items={folderNotes.map(n => n._id)} strategy={verticalListSortingStrategy}>
                       {folderNotes.map((note, noteIndex) => (
-                        <SortableNoteItem key={note._id} note={note} noteIndex={noteIndex} parentFolderId={folder._id} dragType={activeDragType} />
+                        <SortableNoteItem key={note._id} noteId={note._id} dragType={activeDragType}>
+                          {renderNoteItem(note, noteIndex, folder._id)}
+                        </SortableNoteItem>
                       ))}
                     </SortableContext>
                   </SidebarMenuSub>
@@ -648,7 +650,9 @@ export default function NotesSidebar() {
                           strategy={verticalListSortingStrategy}
                         >
                           {filtered.filter(n => !n.folderId).map((note, noteIndex) => (
-                            <SortableNoteItem key={note._id} note={note} noteIndex={noteIndex} parentFolderId={null} dragType={activeDragType} />
+                            <SortableNoteItem key={note._id} noteId={note._id} dragType={activeDragType}>
+                              {renderNoteItem(note, noteIndex, null)}
+                            </SortableNoteItem>
                           ))}
                         </SortableContext>
                       </SidebarMenuSub>
