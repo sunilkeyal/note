@@ -29,7 +29,7 @@ function LoginForm() {
 
     if (result?.error) {
       setError(
-        result.error === "AccountDisabled"
+        result.code === "AccountDisabled"
           ? "Your account has been disabled. Please contact an administrator."
           : result.error === "Configuration"
             ? "A system error occurred. Please try again later."
