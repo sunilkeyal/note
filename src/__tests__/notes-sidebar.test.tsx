@@ -258,10 +258,10 @@ describe('NotesSidebar', () => {
     expect(screen.getByText('Beta Note')).toBeInTheDocument()
   })
 
-  it('does not render standalone notes without a folder', () => {
+  it('renders standalone notes without a folder in the root notes section', () => {
     vi.mocked(useNotes).mockReturnValue(createMockContext())
     renderSidebar()
-    expect(screen.queryByText('Standalone Note')).not.toBeInTheDocument()
+    expect(screen.getByText('Standalone Note')).toBeInTheDocument()
   })
 
   it('shows admin section when user has admin role', () => {
