@@ -77,7 +77,6 @@ async function getBrowser(): Promise<Browser> {
       log("launching in serverless mode")
       browserPromise = puppeteer.launch({
         args: [...chromium.args, ...commonArgs],
-        defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
         headless: true,
       })
