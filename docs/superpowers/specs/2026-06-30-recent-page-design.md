@@ -33,10 +33,8 @@ Replace the "Coming soon" stub at `/recent` with a fully functional page that sh
 
 - 2-column grid on `sm` and above; single column on mobile
 - Each card contains:
-  - Top row: file icon + title + relative timestamp (right-aligned)
-  - Content preview line (truncated, plain text)
-  - Bottom metadata row: folder icon + folder name / timestamp
-    - Same footer-row pattern as the hero card (folder left, time right)
+  - Top section: file icon + title + content preview (truncated, plain text)
+  - Bottom metadata row: folder icon + folder name (left) / relative timestamp (right)
     - Folder omitted if note has no folder
 - Clicking opens the note in the editor
 
