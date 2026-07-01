@@ -90,7 +90,7 @@ function NoteSection({ title, icon, notes, viewAllHref, emptyMessage, onNoteClic
 export default function HomePage() {
   const router = useRouter()
   const { data: session } = useSession()
-  const { notes, loading, error, setActiveNoteId, createNote, fetchNotes } = useNotes()
+  const { notes, loading, error, setActiveNoteId, createNote, fetchNotes, expandedFolders, toggleFolder } = useNotes()
   const [searchQuery, setSearchQuery] = useState("")
 
   const sortedNotes = useMemo(() => {
@@ -113,6 +113,10 @@ export default function HomePage() {
   }
 
   const handleNoteClick = (id: string) => {
+    const note = notes.find((n) => n._id === id)
+    if (note?.folderId && !expandedFolders.has(note.folderId)) {
+      toggleFolder(note.folderId)
+    }
     setActiveNoteId(id)
   }
 
@@ -174,7 +178,7 @@ export default function HomePage() {
           <NoteSection
             title="Recent Notes"
             icon={<FileText className="h-5 w-5 text-primary" />}
-            notes={filteredNotes}
+            notes={filteredNotes.slice(0, 5)}
             viewAllHref="/recent"
             emptyMessage={searchQuery ? "No notes match your search" : "No recent notes yet. Create your first note!"}
             onNoteClick={handleNoteClick}
@@ -194,7 +198,7 @@ export default function HomePage() {
           <NoteSection
             title="Recent Notes"
             icon={<FileText className="h-5 w-5 text-primary" />}
-            notes={filteredNotes}
+            notes={filteredNotes.slice(0, 5)}
             viewAllHref="/recent"
             emptyMessage={searchQuery ? "No notes match your search" : "No recent notes yet. Create your first note!"}
             onNoteClick={handleNoteClick}

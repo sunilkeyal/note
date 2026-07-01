@@ -217,30 +217,30 @@ export default function MainArea() {
       {editor && (
         <>
           {/* Desktop toolbar — hidden on mobile */}
-          <div className="hidden md:block px-4 sm:px-6 md:px-8 lg:px-10 pt-2 w-full md:max-w-[900px] lg:max-w-[1140px] mx-auto">
+          <div className="hidden md:block px-4 sm:px-6 md:px-8 lg:px-10 pt-2 w-full md:max-w-[900px] lg:max-w-[1140px]">
             <TooltipProvider>
             <div className="flex items-center gap-1 px-3 py-1 border rounded-lg bg-card overflow-x-auto">
               <ToggleGroup type="multiple" size="sm">
                 <Tooltip>
-                  <TooltipTrigger render={<ToggleGroupItem value="bold" pressed={editor.isActive("bold")} onPressedChange={() => editor.chain().focus().toggleBold().run()} className="min-h-[44px] min-w-[44px]" />}>
+                  <TooltipTrigger render={<ToggleGroupItem value="bold" pressed={editor.isActive("bold")} onPressedChange={() => editor.chain().focus().toggleBold().run()} className="" />}>
                     <Bold className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Bold</TooltipContent>
                 </Tooltip>
                 <Tooltip>
-                  <TooltipTrigger render={<ToggleGroupItem value="italic" pressed={editor.isActive("italic")} onPressedChange={() => editor.chain().focus().toggleItalic().run()} className="min-h-[44px] min-w-[44px]" />}>
+                  <TooltipTrigger render={<ToggleGroupItem value="italic" pressed={editor.isActive("italic")} onPressedChange={() => editor.chain().focus().toggleItalic().run()} className="" />}>
                     <Italic className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Italic</TooltipContent>
                 </Tooltip>
                 <Tooltip>
-                  <TooltipTrigger render={<ToggleGroupItem value="underline" pressed={editor.isActive("underline")} onPressedChange={() => editor.chain().focus().toggleUnderline().run()} className="min-h-[44px] min-w-[44px]" />}>
+                  <TooltipTrigger render={<ToggleGroupItem value="underline" pressed={editor.isActive("underline")} onPressedChange={() => editor.chain().focus().toggleUnderline().run()} className="" />}>
                     <UnderlineIcon className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Underline</TooltipContent>
                 </Tooltip>
                 <Tooltip>
-                  <TooltipTrigger render={<ToggleGroupItem value="strike" pressed={editor.isActive("strike")} onPressedChange={() => editor.chain().focus().toggleStrike().run()} className="min-h-[44px] min-w-[44px]" />}>
+                  <TooltipTrigger render={<ToggleGroupItem value="strike" pressed={editor.isActive("strike")} onPressedChange={() => editor.chain().focus().toggleStrike().run()} className="" />}>
                     <Strikethrough className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Strikethrough</TooltipContent>
@@ -251,19 +251,19 @@ export default function MainArea() {
 
               <ToggleGroup type="multiple" size="sm">
                 <Tooltip>
-                  <TooltipTrigger render={<ToggleGroupItem value="bulletList" pressed={editor.isActive("bulletList")} onPressedChange={() => editor.chain().focus().toggleBulletList().run()} className="min-h-[44px] min-w-[44px]" />}>
+                  <TooltipTrigger render={<ToggleGroupItem value="bulletList" pressed={editor.isActive("bulletList")} onPressedChange={() => editor.chain().focus().toggleBulletList().run()} className="" />}>
                     <List className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Bullet list</TooltipContent>
                 </Tooltip>
                 <Tooltip>
-                  <TooltipTrigger render={<ToggleGroupItem value="orderedList" pressed={editor.isActive("orderedList")} onPressedChange={() => editor.chain().focus().toggleOrderedList().run()} className="min-h-[44px] min-w-[44px]" />}>
+                  <TooltipTrigger render={<ToggleGroupItem value="orderedList" pressed={editor.isActive("orderedList")} onPressedChange={() => editor.chain().focus().toggleOrderedList().run()} className="" />}>
                     <ListOrdered className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Ordered list</TooltipContent>
                 </Tooltip>
                 <Tooltip>
-                  <TooltipTrigger render={<ToggleGroupItem value="taskList" pressed={editor.isActive("taskList")} onPressedChange={() => editor.chain().focus().toggleTaskList().run()} className="min-h-[44px] min-w-[44px]" />}>
+                  <TooltipTrigger render={<ToggleGroupItem value="taskList" pressed={editor.isActive("taskList")} onPressedChange={() => editor.chain().focus().toggleTaskList().run()} className="" />}>
                     <ListChecks className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Todo list</TooltipContent>
@@ -274,7 +274,7 @@ export default function MainArea() {
 
               <Popover>
                 <Tooltip>
-                  <TooltipTrigger render={<PopoverTrigger className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md border border-input hover:bg-accent relative" />}>
+                  <TooltipTrigger render={<PopoverTrigger className="h-7 w-7 flex items-center justify-center rounded-md border border-input hover:bg-accent relative" />}>
                     <Palette className="h-4 w-4" />
                     <span
                       className="absolute bottom-1 h-[3px] w-3 rounded-full"
@@ -309,7 +309,7 @@ export default function MainArea() {
 
               <Popover>
                 <Tooltip>
-                  <TooltipTrigger render={<PopoverTrigger className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md border border-input hover:bg-accent" />}>
+                  <TooltipTrigger render={<PopoverTrigger className="h-7 w-7 flex items-center justify-center rounded-md border border-input hover:bg-accent" />}>
                     <Highlighter className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Highlight color</TooltipContent>
@@ -340,7 +340,7 @@ export default function MainArea() {
 
               <Popover>
                 <Tooltip>
-                  <TooltipTrigger render={<PopoverTrigger className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md border border-input hover:bg-accent" />}>
+                  <TooltipTrigger render={<PopoverTrigger className="h-7 w-7 flex items-center justify-center rounded-md border border-input hover:bg-accent" />}>
                     <ArrowUpDown className="h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>Paragraph spacing</TooltipContent>
@@ -445,7 +445,7 @@ export default function MainArea() {
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <button className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md border border-input hover:bg-accent"
+                    <button className="h-7 w-7 flex items-center justify-center rounded-md border border-input hover:bg-accent"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <Image className="h-4 w-4" />
@@ -465,25 +465,25 @@ export default function MainArea() {
           <div className="editor-toolbar-mobile">
             <button
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md ${editor.isActive("bold") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center justify-center rounded-md ${editor.isActive("bold") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               <Bold className="h-5 w-5" />
             </button>
             <button
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md ${editor.isActive("italic") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center justify-center rounded-md ${editor.isActive("italic") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               <Italic className="h-5 w-5" />
             </button>
             <button
               onClick={() => editor.chain().focus().toggleUnderline().run()}
-              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md ${editor.isActive("underline") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center justify-center rounded-md ${editor.isActive("underline") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               <UnderlineIcon className="h-5 w-5" />
             </button>
             <button
               onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md ${editor.isActive("strike") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center justify-center rounded-md ${editor.isActive("strike") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               <Strikethrough className="h-5 w-5" />
             </button>
@@ -491,7 +491,7 @@ export default function MainArea() {
             <span className="w-px h-6 bg-border mx-0.5" />
 
             <Popover>
-              <PopoverTrigger className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground text-sm font-semibold">
+              <PopoverTrigger className="flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground text-sm font-semibold">
                 H
               </PopoverTrigger>
               <PopoverContent className="w-[160px] p-2" align="start">
@@ -526,13 +526,13 @@ export default function MainArea() {
                 else chain.toggleBulletList()
                 chain.run()
               }}
-              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md ${editor.isActive("bulletList") || editor.isActive("orderedList") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center justify-center rounded-md ${editor.isActive("bulletList") || editor.isActive("orderedList") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               <List className="h-5 w-5" />
             </button>
             <button
               onClick={() => editor.chain().focus().toggleTaskList().run()}
-              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md ${editor.isActive("taskList") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center justify-center rounded-md ${editor.isActive("taskList") ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               <ListChecks className="h-5 w-5" />
             </button>
@@ -540,7 +540,7 @@ export default function MainArea() {
             <span className="w-px h-6 bg-border mx-0.5" />
 
             <Popover>
-              <PopoverTrigger className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground">
+              <PopoverTrigger className="flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground">
                 <Palette className="h-5 w-5" />
               </PopoverTrigger>
               <PopoverContent className="w-[280px] p-3" align="start">
@@ -558,7 +558,7 @@ export default function MainArea() {
             </Popover>
 
             <Popover>
-              <PopoverTrigger className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground">
+              <PopoverTrigger className="flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground">
                 <Highlighter className="h-5 w-5" />
               </PopoverTrigger>
               <PopoverContent className="w-[280px] p-3" align="start">
@@ -579,13 +579,13 @@ export default function MainArea() {
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
+              className="flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
             >
               <Image className="h-5 w-5" />
             </button>
 
             <Popover>
-              <PopoverTrigger className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground font-bold text-lg leading-none">
+              <PopoverTrigger className="flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground font-bold text-lg leading-none">
                 +
               </PopoverTrigger>
               <PopoverContent className="w-[240px] p-3" align="end">
@@ -631,7 +631,7 @@ export default function MainArea() {
         </>
       )}
 
-      <div className="px-4 sm:px-6 md:px-8 lg:px-10 pt-3 pb-0 w-full md:max-w-[900px] lg:max-w-[1140px] mx-auto">
+      <div className="px-4 sm:px-6 md:px-8 lg:px-10 pt-3 pb-0 w-full md:max-w-[900px] lg:max-w-[1140px]">
         <Input
           value={title}
           onChange={(e) => handleTitleChange(activeNote._id, e.target.value)}
@@ -644,7 +644,7 @@ export default function MainArea() {
         <Separator className="mt-2" />
       </div>
 
-      <div className="flex-1 overflow-auto px-4 sm:px-6 md:px-8 lg:px-10 w-full md:max-w-[900px] lg:max-w-[1140px] py-4 mx-auto pb-16 md:pb-4">
+      <div className="flex-1 overflow-auto px-4 sm:px-6 md:px-8 lg:px-10 w-full md:max-w-[900px] lg:max-w-[1140px] py-4 pb-16 md:pb-4">
         <NoteEditor note={activeNote} editor={editor} />
       </div>
     </div>
